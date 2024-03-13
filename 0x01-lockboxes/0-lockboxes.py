@@ -3,32 +3,25 @@
 '''
 
 def canUnlockAll(boxes):
-    if not boxes:
+    """Determines if all the boxes can be opened"""
+    if not isinstance(boxes, list) or len(boxes) == 0:
         return False
 
-    keys = set([0])  # Start with keys to the first box
-    opened = set()   # Set to keep track of opened boxes
+    # Keep track of boxes that have been visited
+    visited = set()
 
-    while keys:
-        box_idx = keys.pop()  # Get a box index from keys
-        opened.add(box_idx)   # Mark the box as opened
+    # Initialize a queue with the first box
+    queue = [0]
 
-        # Add keys from the current box to keys set
-        for key in boxes[box_idx]:
-            if key not in opened:
-                keys.add(key)
+    # Iterate through the queue until it's empty
+    while queue:
+        box = queue.pop(0)
+        visited.add(box)  # Mark the box as visited
 
-    # Check if all boxes are opened
-    return len(opened) == len(boxes)
+        # Check the keys in the current box
+        for key in boxes[box]:
+            if key not in visited:
+                queue.append(key)
 
-
-# Test cases
-if __name__ == "__main__":
-    boxes1 = [[1], [2], [3], [4], []]
-    print(canUnlockAll(boxes1))  # True
-
-    boxes2 = [[1, 4, 6], [2], [0, 4, 1], [5, 6, 2], [3], [4, 1], [6]]
-    print(canUnlockAll(boxes2))  # True
-
-    boxes3 = [[1, 4], [2], [0, 4, 1], [3], [], [4, 1], [5, 6]]
-    print(canUnlockAll(boxes3))  # False
+    # Check if all boxes have been visited
+    return len(visited) == len(boxes)
