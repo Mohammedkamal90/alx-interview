@@ -1,51 +1,40 @@
 #!/usr/bin/python3
-
+'''script for parsing HTTP request logs
+'''
 
 import sys
-from collections import defaultdict
 
 
-def print_stats(total_size, status_counts):
-    """method print
-    return
-    nothing
-    """
-    print("File size:", total_size)
-    for status_code in sorted(status_counts.keys()):
-        print("{}: {}".format(status_code, status_counts[status_code]))
+def print_statistics(total_file_size, status_code_counts):
+    print("File size: {:d}".format(total_file_size))
+    for status_code in sorted(status_code_counts):
+        count = status_code_counts[status_code]
+        if count > 0:
+            print("{:d}: {:d}".format(status_code, count))
 
-def parse_line(line):
-    parts = line.split()
-    if len(parts) != 10:
-        return None
-    ip, date, method, path, protocol, status, size = parts[:7]
-    if method != 'GET' or path != '/projects/260' or protocol != 'HTTP/1.1':
-        return None
-    try:
-        size = int(size)
-        status = int(status)
-    except ValueError:
-        return None
-    return status, size
-
-def main():
-    total_size = 0
-    status_counts = defaultdict(int)
+def run():
+    total_file_size = 0
+    status_code_counts = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
     line_count = 0
+
     try:
         for line in sys.stdin:
-            parsed = parse_line(line.strip())
-            if parsed:
-                status, size = parsed
-                total_size += size
-                status_counts[status] += 1
-                line_count += 1
-            if line_count == 10:
-                print_stats(total_size, status_counts)
-                line_count = 0
+            parts = line.split()
+            if len(parts) != 7:
+                continue
+
+            status_code = int(parts[-2])
+            file_size = int(parts[-1])
+
+            if status_code in status_code_counts:
+                status_code_counts[status_code] += 1
+            total_file_size += file_size
+            line_count += 1
+
+            if line_count % 10 == 0:
+                print_statistics(total_file_size, status_code_counts)
     except KeyboardInterrupt:
-        pass
-    print_stats(total_size, status_counts)
+        print_statistics(total_file_size, status_code_counts)
 
 if __name__ == "__main__":
-    main()
+    run()
