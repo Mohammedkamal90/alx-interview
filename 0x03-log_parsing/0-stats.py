@@ -4,37 +4,38 @@
 
 import sys
 
+STATUS_CODES = {'200', '301', '400', '401', '403', '404', '405', '500'}
 
-def print_statistics(total_file_size, status_code_counts):
-    print("File size: {:d}".format(total_file_size))
-    for status_code in sorted(status_code_counts):
-        count = status_code_counts[status_code]
-        if count > 0:
-            print("{:d}: {:d}".format(status_code, count))
+def process_line(line):
+    line_list = line.split(" ")
+    if len(line_list) >= 10:
+        code = line_list[-2]
+        size = int(line_list[-1])
+        if code in STATUS_CODES:
+            return code, size
+    return None, 0
 
-def run():
-    total_file_size = 0
-    status_code_counts = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
-    line_count = 0
+def print_statistics(total_size, code_counts):
+    print('File size:', total_size)
+    for code in sorted(STATUS_CODES):
+        if code_counts[code] != 0:
+            print(f'{code}: {code_counts[code]}')
 
+def main():
+    total_size = 0
+    code_counts = {code: 0 for code in STATUS_CODES}
     try:
-        for line in sys.stdin:
-            parts = line.split()
-            if len(parts) != 7:
-                continue
-
-            status_code = int(parts[-2])
-            file_size = int(parts[-1])
-
-            if status_code in status_code_counts:
-                status_code_counts[status_code] += 1
-            total_file_size += file_size
-            line_count += 1
-
-            if line_count % 10 == 0:
-                print_statistics(total_file_size, status_code_counts)
+        for i, line in enumerate(sys.stdin, start=1):
+            code, size = process_line(line)
+            if code:
+                total_size += size
+                code_counts[code] += 1
+            if i % 10 == 0:
+                print_statistics(total_size, code_counts)
     except KeyboardInterrupt:
-        print_statistics(total_file_size, status_code_counts)
+        pass
+    finally:
+        print_statistics(total_size, code_counts)
 
 if __name__ == "__main__":
-    run()
+    main()
