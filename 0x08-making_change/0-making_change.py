@@ -1,35 +1,41 @@
 #!/usr/bin/python3
-"""
-change comes from within
-"""
+'''
+Given a pile of coins of different values,
+determine the fewest number of coins needed to meet
+a given amount total.
+'''
+import sys
 
 def makeChange(coins, total):
-    # Base cases
-    if total < 0:
-        return -1
-    if total == 0:
+    '''
+    Return the fewest number of coins needed to meet total.
+    If total is 0 or less, return 0.
+    If total cannot be met by any number of coins you have, return -1.
+    '''
+    if total <= 0:
         return 0
     
     # Initialize a table to store minimum coins required for each total
-    dp = [float('inf')] * (total + 1)
-    dp[0] = 0  # 0 coins needed to make total 0
+    min_coins = [sys.maxsize for _ in range(total + 1)]
+    min_coins[0] = 0
     
-    # Iterate over each coin denomination
-    for coin in coins:
-        # For each coin denomination, iterate over possible amounts
-        # starting from the value of the coin up to the total amount
-        for amount in range(coin, total + 1):
-            # Update dp[amount] if using this coin results in fewer coins
-            # The minimum number of coins for the current amount (amount) is
-            # the minimum of the current value in dp[amount] and the value of
-            # dp[amount - coin] + 1 (where dp[amount - coin] represents the
-            # minimum number of coins needed for the remaining amount after
-            # subtracting the value of the current coin)
-            dp[amount] = min(dp[amount], dp[amount - coin] + 1)
+    num_coins = len(coins)
     
-    # If the final entry in dp is still infinity, it means the total amount
-    # cannot be made up using the available coins, so return -1
-    return dp[total] if dp[total] != float('inf') else -1
+    # Iterate through each possible total amount
+    for amount in range(1, total + 1):
+        # Iterate through each coin denomination
+        for coin_index in range(num_coins):
+            coin_value = coins[coin_index]
+            # Check if the coin value is less than or equal to the current total
+            if coin_value <= amount:
+                # Calculate the number of coins needed for the remaining amount
+                sub_result = min_coins[amount - coin_value]
+                # Update the minimum coins if using this coin results in fewer coins
+                if sub_result != sys.maxsize and sub_result + 1 < min_coins[amount]:
+                    min_coins[amount] = sub_result + 1
+
+    # If the minimum coins for the total amount is still sys.maxsize, return -1
+    return min_coins[total] if min_coins[total] != sys.maxsize else -1
 
 # Test cases
 if __name__ == "__main__":
