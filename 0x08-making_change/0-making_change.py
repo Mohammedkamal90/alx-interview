@@ -6,6 +6,7 @@ a given amount total.
 '''
 import sys
 
+
 def makeChange(coins, total):
     '''
     Return the fewest number of coins needed to meet total.
