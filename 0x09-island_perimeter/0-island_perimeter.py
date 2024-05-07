@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/pytho
 """
 0-island_perimeter module
 """
