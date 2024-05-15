@@ -1,50 +1,50 @@
 #!/usr/bin/python3
-"""
-Determines the winner of each round of the prime game.
-"""
-
-def is_prime(n):
-    """Checks if a number is prime."""
-    if n <= 1:
-        return False
-    if n <= 3:
-        return True
-    if n % 2 == 0 or n % 3 == 0:
-        return False
-    i = 5
-    while i * i <= n:
-        if n % i == 0 or n % (i + 2) == 0:
-            return False
-        i += 6
-    return True
+"""Prime Game: A game between Maria and Ben"""
 
 def isWinner(x, nums):
     """
-    Determines the winner of each round of the prime game.
+    Determine the winner of the prime game
 
     Args:
-        x: The number of rounds.
-        nums: An array of n for each round.
+    - x: number of rounds
+    - nums: list of integers representing n for each round
 
     Returns:
-        The name of the player that won the most rounds.
-        If the winner cannot be determined, returns None.
+    - The name of the player who won the most rounds (or None if the winner cannot be determined)
     """
-    if not nums:
+    if x <= 0 or nums is None:
+        return None
+    if x != len(nums):
         return None
 
+    ben_wins = 0
     maria_wins = 0
+
+    prime_flags = [1] * (max(nums) + 1)
+    prime_flags[0], prime_flags[1] = 0, 0
+
+    for num in range(2, len(prime_flags)):
+        remove_multiples(prime_flags, num)
+
     for n in nums:
-        primes_count = sum(1 for i in range(1, n + 1) if is_prime(i))
-        if primes_count % 2 == 0:
+        if sum(prime_flags[:n + 1]) % 2 == 0:
+            ben_wins += 1
+        else:
             maria_wins += 1
 
-    if maria_wins > x // 2:
-        return "Maria"
-    elif maria_wins == x // 2:
-        return None
-    else:
+    if ben_wins > maria_wins:
         return "Ben"
+    if maria_wins > ben_wins:
+        return "Maria"
+    return None
 
-if __name__ == "__main__":
-    print("Winner: {}".format(isWinner(5, [2, 5, 1, 4, 3])))
+def remove_multiples(prime_flags, num):
+    """
+    Remove multiples of a prime number from the list of flags
+
+    Args:
+    - prime_flags: list of flags indicating whether a number is prime
+    - num: the prime number whose multiples should be removed
+    """
+    for i in range(2 * num, len(prime_flags), num):
+        prime_flags[i] = 0
